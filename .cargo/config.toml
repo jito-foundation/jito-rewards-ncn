@@ -1,0 +1,7 @@
+# placeholders for clippy and other tools
+# Program IDs may not be correct
+[env]
+REWARD_PROGRAM_ID = "Fv9aHCgvPQSr4jg9W8eTS6Ys1SNmh2qjyATrbsjEMaSH"
+RESTAKING_PROGRAM_ID = "6Weyp6uFyjJ3pzYz7XbXvCPAyvzLUhESEhHarFRm53Nb"
+VAULT_PROGRAM_ID = "4vB3bvqKEmxV68J7XtS1HqZomjok4ZXc1ELJH9p1K1D2"
+WEIGHT_TABLE_ID = "ENHcxLEWQxRyS8VbC7Pb6GKc739vVaBZ2toJvQSL68vM"

@@ -1,0 +1,4 @@
+# note: this file doesn't play nicely with solana-verify build
+[toolchain]
+
+components = ["rustfmt", "rustc-dev", "clippy", "cargo"]

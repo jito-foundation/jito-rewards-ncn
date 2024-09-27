@@ -1,0 +1,26 @@
+[package]
+name = "jito-reward-sdk"
+description = "Jito's Reward SDK"
+version = { workspace = true }
+authors = { workspace = true }
+repository = { workspace = true }
+homepage = { workspace = true }
+license = { workspace = true }
+edition = { workspace = true }
+readme = { workspace = true }
+
+[dependencies]
+borsh = { workspace = true }
+bytemuck = { workspace = true }
+jito-bytemuck = { workspace = true }
+jito-jsm-core = { workspace = true }
+jito-reward-core = { workspace = true }
+jito-vault-sdk = { workspace = true }
+shank = { workspace = true }
+solana-program = { workspace = true }
+spl-associated-token-account = { workspace = true }
+spl-token = { workspace = true }
+thiserror = { workspace = true }
+
+[dev-dependencies]
+assert_matches = { workspace = true }
