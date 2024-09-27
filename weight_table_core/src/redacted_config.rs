@@ -5,6 +5,8 @@ use solana_program::pubkey::Pubkey;
 
 use crate::{error::WeightTableError, weight::Weight};
 
+// May not go with the config approach
+
 // One config per ncn
 
 #[derive(
