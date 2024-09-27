@@ -14,8 +14,6 @@ use solana_program::{
 pub fn process_initialize_weight_table(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
-    valid_voting_slots: u64,
-    slots_before_closing_marker_accounts: u64,
 ) -> ProgramResult {
     //TODO
 

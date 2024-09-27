@@ -1,17 +1,25 @@
 use bytemuck::{Pod, Zeroable};
-use jito_bytemuck::{AccountDeserialize, Discriminator};
+use jito_bytemuck::{types::PodU64, AccountDeserialize, Discriminator};
 use shank::{ShankAccount, ShankType};
 use solana_program::pubkey::Pubkey;
 
 use crate::{error::WeightTableError, weight::Weight};
 
+// PDA'd ["WEIGHT_TABLE", NCN, NCN_EPOCH_SLOT]
 #[derive(
     Debug, Clone, Copy, Zeroable, ShankType, Pod, Default, AccountDeserialize, ShankAccount,
 )]
 #[repr(C)]
 pub struct WeightTable {
+    /// The NCN on-chain program is the signer to create and update this account,
+    /// this pushes the responsibility of managing the account to the NCN program.
     pub ncn: Pubkey,
-    pub ncn_epoch_slot: u64,
+
+    /// The slot starting the NCN epoch, the epoch length is determined by the restaking program config.
+    pub ncn_epoch_slot: PodU64,
+
+    /// Anything non-zero means the table is finalized and cannot be updated.
+    pub finalized: u8,
 
     pub table: [WeightEntry; 32],
 }
@@ -22,11 +30,14 @@ impl Discriminator for WeightTable {
 
 impl WeightTable {
     pub const MAX_TABLE_ENTRIES: usize = 32;
+    pub const NOT_FINALIZED: u8 = 0;
+    pub const FINALIZED: u8 = 0xFF;
 
     pub fn new(ncn: Pubkey, ncn_epoch_slot: u64) -> Self {
         Self {
             ncn,
-            ncn_epoch_slot,
+            ncn_epoch_slot: PodU64::from(ncn_epoch_slot),
+            finalized: Self::NOT_FINALIZED,
             table: [WeightEntry::default(); Self::MAX_TABLE_ENTRIES],
         }
     }
@@ -83,6 +94,17 @@ impl WeightTable {
 
         Ok(())
     }
+
+    pub fn is_finalized(&self, current_slot: u64, epoch_length: u64) -> bool {
+        let finalized = self.finalized != Self::NOT_FINALIZED;
+        let epoch_over = current_slot >= u64::from(self.ncn_epoch_slot) + epoch_length;
+
+        finalized || epoch_over
+    }
+
+    pub fn finalize(&mut self) {
+        self.finalized = Self::FINALIZED;
+    }
 }
 
 #[derive(Default, Debug, Clone, Copy, Zeroable, ShankType, Pod)]
@@ -98,7 +120,7 @@ impl WeightEntry {
     }
 
     pub fn is_empty(&self) -> bool {
-        self.mint.eq(&Pubkey::default()) || self.weight.denominator() == 0
+        self.weight.denominator() == 0 || self.mint.eq(&Pubkey::default())
     }
 }
 
@@ -111,7 +133,6 @@ mod tests {
     #[test]
     fn test_weight_table_new() {
         let ncn = Pubkey::new_unique();
-        let admin = Pubkey::new_unique();
         let table = WeightTable::new(ncn, 0);
         assert_eq!(table.entry_count(), 0);
     }
@@ -119,7 +140,6 @@ mod tests {
     #[test]
     fn test_weight_table_entry_count() {
         let ncn = Pubkey::new_unique();
-        let admin = Pubkey::new_unique();
 
         let mut table = WeightTable::new(ncn, 0);
         let mint1 = Pubkey::new_unique();
@@ -139,7 +159,6 @@ mod tests {
     #[test]
     fn test_weight_table_find_weight() {
         let ncn = Pubkey::new_unique();
-        let admin = Pubkey::new_unique();
 
         let mut table = WeightTable::new(ncn, 0);
         let mint1 = Pubkey::new_unique();
@@ -160,7 +179,6 @@ mod tests {
     #[test]
     fn test_weight_table_set_weight() {
         let ncn = Pubkey::new_unique();
-        let admin = Pubkey::new_unique();
 
         let mut table = WeightTable::new(ncn, 0);
         let mint = Pubkey::new_unique();
