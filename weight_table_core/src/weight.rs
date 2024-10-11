@@ -37,7 +37,7 @@ impl Weight {
         self.numerator() == 0
     }
 
-    fn gcd(&self) -> Result<u64, WeightTableError> {
+    fn greatest_common_denominator(&self) -> Result<u64, WeightTableError> {
         let mut n: u64 = self.numerator();
         let mut d: u64 = self.denominator();
 
@@ -60,7 +60,7 @@ impl Weight {
     }
 
     fn simplify(&self) -> Result<Self, WeightTableError> {
-        let gcd_value = self.gcd()?;
+        let gcd_value = self.greatest_common_denominator()?;
 
         if gcd_value == 1 {
             return Ok(*self);
@@ -282,8 +282,20 @@ mod tests {
 
     #[test]
     fn test_gcd() {
-        assert_eq!(Weight::new(6, 8).unwrap().gcd().unwrap(), 2);
-        assert_eq!(Weight::new(17, 23).unwrap().gcd().unwrap(), 1);
+        assert_eq!(
+            Weight::new(6, 8)
+                .unwrap()
+                .greatest_common_denominator()
+                .unwrap(),
+            2
+        );
+        assert_eq!(
+            Weight::new(17, 23)
+                .unwrap()
+                .greatest_common_denominator()
+                .unwrap(),
+            1
+        );
 
         let bad_weight = Weight::new(1, 0).unwrap_err();
         assert!(matches!(bad_weight, WeightTableError::DenominatorIsZero));

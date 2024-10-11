@@ -3,29 +3,34 @@ use jito_bytemuck::{types::PodU64, AccountDeserialize, Discriminator};
 use shank::{ShankAccount, ShankType};
 use solana_program::pubkey::Pubkey;
 
-use crate::{error::WeightTableError, weight::Weight};
+use crate::{discriminators::WEIGHT_TABLE_DISCRIMINATOR, error::WeightTableError, weight::Weight};
 
 // PDA'd ["WEIGHT_TABLE", NCN, NCN_EPOCH_SLOT]
-#[derive(
-    Debug, Clone, Copy, Zeroable, ShankType, Pod, Default, AccountDeserialize, ShankAccount,
-)]
+#[derive(Debug, Clone, Copy, Zeroable, ShankType, Pod, AccountDeserialize, ShankAccount)]
 #[repr(C)]
 pub struct WeightTable {
     /// The NCN on-chain program is the signer to create and update this account,
     /// this pushes the responsibility of managing the account to the NCN program.
     pub ncn: Pubkey,
 
-    /// The slot starting the NCN epoch, the epoch length is determined by the restaking program config.
-    pub ncn_epoch_slot: PodU64,
+    /// The NCN epoch for which the weight table is valid
+    pub ncn_epoch: PodU64,
 
     /// Anything non-zero means the table is finalized and cannot be updated.
-    pub finalized: u8,
+    finalized: u8,
 
+    /// Bump seed for the PDA
+    pub bump: u8,
+
+    /// Reserved space
+    reserved: [u8; 128],
+
+    /// The weight table
     pub table: [WeightEntry; 32],
 }
 
 impl Discriminator for WeightTable {
-    const DISCRIMINATOR: u8 = 2;
+    const DISCRIMINATOR: u8 = WEIGHT_TABLE_DISCRIMINATOR;
 }
 
 impl WeightTable {
@@ -33,21 +38,23 @@ impl WeightTable {
     pub const NOT_FINALIZED: u8 = 0;
     pub const FINALIZED: u8 = 0xFF;
 
-    pub fn new(ncn: Pubkey, ncn_epoch_slot: u64) -> Self {
+    pub fn new(ncn: Pubkey, ncn_epoch: u64, bump: u8) -> Self {
         Self {
             ncn,
-            ncn_epoch_slot: PodU64::from(ncn_epoch_slot),
+            ncn_epoch: PodU64::from(ncn_epoch),
             finalized: Self::NOT_FINALIZED,
+            bump,
+            reserved: [0; 128],
             table: [WeightEntry::default(); Self::MAX_TABLE_ENTRIES],
         }
     }
 
-    pub fn seeds(ncn: &Pubkey, ncn_epoch_slot: u64) -> Vec<Vec<u8>> {
+    pub fn seeds(ncn: &Pubkey, ncn_epoch: u64) -> Vec<Vec<u8>> {
         Vec::from_iter(
             [
                 b"WEIGHT_TABLE".to_vec(),
                 ncn.to_bytes().to_vec(),
-                ncn_epoch_slot.to_le_bytes().to_vec(),
+                ncn_epoch.to_le_bytes().to_vec(),
             ]
             .iter()
             .cloned(),
@@ -57,9 +64,9 @@ impl WeightTable {
     pub fn find_program_address(
         program_id: &Pubkey,
         ncn: &Pubkey,
-        ncn_epoch_slot: u64,
+        ncn_epoch: u64,
     ) -> (Pubkey, u8, Vec<Vec<u8>>) {
-        let seeds = Self::seeds(ncn, ncn_epoch_slot);
+        let seeds = Self::seeds(ncn, ncn_epoch);
         let seeds_iter: Vec<_> = seeds.iter().map(|s| s.as_slice()).collect();
         let (pda, bump) = Pubkey::find_program_address(&seeds_iter, program_id);
         (pda, bump, seeds)
@@ -85,6 +92,7 @@ impl WeightTable {
         match entry {
             Some(entry) => {
                 entry.weight = weight.into();
+
                 if entry.mint == Pubkey::default() {
                     entry.mint = *mint;
                 }
@@ -95,11 +103,8 @@ impl WeightTable {
         Ok(())
     }
 
-    pub fn is_finalized(&self, current_slot: u64, epoch_length: u64) -> bool {
-        let finalized = self.finalized != Self::NOT_FINALIZED;
-        let epoch_over = current_slot >= u64::from(self.ncn_epoch_slot) + epoch_length;
-
-        finalized || epoch_over
+    pub fn finalized(&self) -> bool {
+        self.finalized != Self::NOT_FINALIZED
     }
 
     pub fn finalize(&mut self) {
@@ -133,7 +138,7 @@ mod tests {
     #[test]
     fn test_weight_table_new() {
         let ncn = Pubkey::new_unique();
-        let table = WeightTable::new(ncn, 0);
+        let table = WeightTable::new(ncn, 0, 0);
         assert_eq!(table.entry_count(), 0);
     }
 
@@ -141,7 +146,7 @@ mod tests {
     fn test_weight_table_entry_count() {
         let ncn = Pubkey::new_unique();
 
-        let mut table = WeightTable::new(ncn, 0);
+        let mut table = WeightTable::new(ncn, 0, 0);
         let mint1 = Pubkey::new_unique();
         let mint2 = Pubkey::new_unique();
 
@@ -160,7 +165,7 @@ mod tests {
     fn test_weight_table_find_weight() {
         let ncn = Pubkey::new_unique();
 
-        let mut table = WeightTable::new(ncn, 0);
+        let mut table = WeightTable::new(ncn, 0, 0);
         let mint1 = Pubkey::new_unique();
         let mint2 = Pubkey::new_unique();
 
@@ -180,7 +185,7 @@ mod tests {
     fn test_weight_table_set_weight() {
         let ncn = Pubkey::new_unique();
 
-        let mut table = WeightTable::new(ncn, 0);
+        let mut table = WeightTable::new(ncn, 0, 0);
         let mint = Pubkey::new_unique();
 
         // Set initial weight

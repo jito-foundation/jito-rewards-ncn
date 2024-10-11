@@ -11,6 +11,9 @@ pub enum WeightTableError {
     ArithmeticOverflow = 0x2101,
     #[error("Modulo Overflow")]
     ModuloOverflow = 0x2102,
+
+    #[error("Incorrect weight table admin")]
+    IncorrectWeightTableAdmin = 0x2200,
 }
 
 impl<T> DecodeError<T> for WeightTableError {

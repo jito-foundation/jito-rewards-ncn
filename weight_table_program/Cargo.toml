@@ -20,6 +20,7 @@ jito-vault-core = { workspace = true }
 jito-restaking-sdk = { workspace = true }
 jito-restaking-core= { workspace = true }
 jito-restaking-program = { workspace = true }
+jito-weight-table-core = { workspace = true }
 shank = { workspace = true }
 solana-program = { workspace = true }
 spl-associated-token-account = { workspace = true }
