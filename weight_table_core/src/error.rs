@@ -14,6 +14,8 @@ pub enum WeightTableError {
 
     #[error("Incorrect weight table admin")]
     IncorrectWeightTableAdmin = 0x2200,
+    #[error("Cannnot create future weight tables")]
+    CannotCreateFutureWeightTables = 0x2201,
 }
 
 impl<T> DecodeError<T> for WeightTableError {

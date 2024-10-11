@@ -11,9 +11,11 @@ use solana_program::{
 };
 
 /// Initializes a Weight Table
+/// Can be backfilled for previous epochs
 pub fn process_initialize_weight_table(
     program_id: &Pubkey,
     accounts: &[AccountInfo],
+    first_slot_of_ncn_epoch: Option<u64>,
 ) -> ProgramResult {
     let [restaking_config, ncn, weight_table, weight_table_admin, restaking_program_id, system_program] =
         accounts
@@ -50,9 +52,19 @@ pub fn process_initialize_weight_table(
     }
 
     let current_slot = Clock::get()?.slot;
-    let ncn_epoch = current_slot
+    let current_ncn_epoch = current_slot
         .checked_div(ncn_epoch_length)
         .ok_or(WeightTableError::DenominatorIsZero)?;
+
+    let ncn_epoch_slot = first_slot_of_ncn_epoch.unwrap_or(current_slot);
+    let ncn_epoch = ncn_epoch_slot
+        .checked_div(ncn_epoch_length)
+        .ok_or(WeightTableError::DenominatorIsZero)?;
+
+    if ncn_epoch > current_ncn_epoch {
+        msg!("Weight tables can only be initialized for current or past epochs");
+        return Err(WeightTableError::CannotCreateFutureWeightTables.into());
+    }
 
     let (weight_table_pubkey, weight_table_bump, mut weight_table_seeds) =
         WeightTable::find_program_address(program_id, ncn.key, ncn_epoch);
@@ -82,7 +94,8 @@ pub fn process_initialize_weight_table(
     let mut weight_table_data = weight_table.try_borrow_mut_data()?;
     weight_table_data[0] = WeightTable::DISCRIMINATOR;
     let weight_table_account = WeightTable::try_from_slice_unchecked_mut(&mut weight_table_data)?;
-    *weight_table_account = WeightTable::new(*ncn.key, ncn_epoch, weight_table_bump);
+
+    *weight_table_account = WeightTable::new(*ncn.key, ncn_epoch, current_slot, weight_table_bump);
 
     Ok(())
 }

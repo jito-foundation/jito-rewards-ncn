@@ -1,7 +1,7 @@
 use bytemuck::{Pod, Zeroable};
 use jito_bytemuck::{types::PodU64, AccountDeserialize, Discriminator};
 use shank::{ShankAccount, ShankType};
-use solana_program::pubkey::Pubkey;
+use solana_program::{account_info::AccountInfo, msg, program_error::ProgramError, pubkey::Pubkey};
 
 use crate::{discriminators::WEIGHT_TABLE_DISCRIMINATOR, error::WeightTableError, weight::Weight};
 
@@ -16,8 +16,11 @@ pub struct WeightTable {
     /// The NCN epoch for which the weight table is valid
     pub ncn_epoch: PodU64,
 
-    /// Anything non-zero means the table is finalized and cannot be updated.
-    finalized: u8,
+    /// Slot weight table was created
+    slot_created: PodU64,
+
+    /// Slot weight table was finalized
+    slot_finalized: PodU64,
 
     /// Bump seed for the PDA
     pub bump: u8,
@@ -35,14 +38,14 @@ impl Discriminator for WeightTable {
 
 impl WeightTable {
     pub const MAX_TABLE_ENTRIES: usize = 32;
-    pub const NOT_FINALIZED: u8 = 0;
-    pub const FINALIZED: u8 = 0xFF;
+    pub const NOT_FINALIZED: u64 = u64::MAX;
 
-    pub fn new(ncn: Pubkey, ncn_epoch: u64, bump: u8) -> Self {
+    pub fn new(ncn: Pubkey, ncn_epoch: u64, slot_created: u64, bump: u8) -> Self {
         Self {
             ncn,
             ncn_epoch: PodU64::from(ncn_epoch),
-            finalized: Self::NOT_FINALIZED,
+            slot_created: PodU64::from(slot_created),
+            slot_finalized: PodU64::from(Self::NOT_FINALIZED),
             bump,
             reserved: [0; 128],
             table: [WeightEntry::default(); Self::MAX_TABLE_ENTRIES],
@@ -103,12 +106,51 @@ impl WeightTable {
         Ok(())
     }
 
-    pub fn finalized(&self) -> bool {
-        self.finalized != Self::NOT_FINALIZED
+    pub fn slot_created(&self) -> u64 {
+        self.slot_created.into()
     }
 
-    pub fn finalize(&mut self) {
-        self.finalized = Self::FINALIZED;
+    pub fn slot_finalized(&self) -> u64 {
+        self.slot_finalized.into()
+    }
+
+    pub fn finalized(&self) -> bool {
+        self.slot_finalized != PodU64::from(Self::NOT_FINALIZED)
+    }
+
+    pub fn finalize(&mut self, current_slot: u64) {
+        self.slot_finalized = PodU64::from(current_slot);
+    }
+
+    pub fn load(
+        program_id: &Pubkey,
+        weight_table: &AccountInfo,
+        ncn: &AccountInfo,
+        ncn_epoch: u64,
+        expect_writable: bool,
+    ) -> Result<(), ProgramError> {
+        if weight_table.owner.ne(program_id) {
+            msg!("Weight table account is not owned by the program");
+            return Err(ProgramError::InvalidAccountOwner);
+        }
+        if weight_table.data_is_empty() {
+            msg!("Weight table is empty");
+            return Err(ProgramError::InvalidAccountData);
+        }
+        if expect_writable && !weight_table.is_writable {
+            msg!("Weight table account is not writable");
+            return Err(ProgramError::InvalidAccountData);
+        }
+        if weight_table.data.borrow()[0].ne(&Self::DISCRIMINATOR) {
+            msg!("Weight table account has an incorrect discriminator");
+            return Err(ProgramError::InvalidAccountData);
+        }
+        let expected_pubkey = Self::find_program_address(program_id, ncn.key, ncn_epoch).0;
+        if weight_table.key.ne(&expected_pubkey) {
+            msg!("Weight table incorrect PDA");
+            return Err(ProgramError::InvalidAccountData);
+        }
+        Ok(())
     }
 }
 
@@ -138,7 +180,7 @@ mod tests {
     #[test]
     fn test_weight_table_new() {
         let ncn = Pubkey::new_unique();
-        let table = WeightTable::new(ncn, 0, 0);
+        let table = WeightTable::new(ncn, 0, 0, 0);
         assert_eq!(table.entry_count(), 0);
     }
 
@@ -146,7 +188,7 @@ mod tests {
     fn test_weight_table_entry_count() {
         let ncn = Pubkey::new_unique();
 
-        let mut table = WeightTable::new(ncn, 0, 0);
+        let mut table = WeightTable::new(ncn, 0, 0, 0);
         let mint1 = Pubkey::new_unique();
         let mint2 = Pubkey::new_unique();
 
@@ -165,7 +207,7 @@ mod tests {
     fn test_weight_table_find_weight() {
         let ncn = Pubkey::new_unique();
 
-        let mut table = WeightTable::new(ncn, 0, 0);
+        let mut table = WeightTable::new(ncn, 0, 0, 0);
         let mint1 = Pubkey::new_unique();
         let mint2 = Pubkey::new_unique();
 
@@ -185,7 +227,7 @@ mod tests {
     fn test_weight_table_set_weight() {
         let ncn = Pubkey::new_unique();
 
-        let mut table = WeightTable::new(ncn, 0, 0);
+        let mut table = WeightTable::new(ncn, 0, 0, 0);
         let mint = Pubkey::new_unique();
 
         // Set initial weight
@@ -224,5 +266,16 @@ mod tests {
         let weight = Weight::new(1, 2).unwrap();
         let non_empty_entry = WeightEntry::new(mint, weight);
         assert!(!non_empty_entry.is_empty());
+    }
+
+    #[test]
+    fn test_weight_table_finalize() {
+        let mut weight_table = WeightTable::new(Pubkey::new_unique(), 0, 0, 0);
+
+        assert!(!weight_table.finalized());
+        assert_eq!(weight_table.slot_finalized(), WeightTable::NOT_FINALIZED);
+
+        weight_table.finalize(0);
+        assert!(weight_table.finalized());
     }
 }
