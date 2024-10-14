@@ -1,6 +1,6 @@
 [package]
-name = "jito-reward-integration-tests"
-description = "Jito's Reward Tests"
+name = "jito-rewards-integration-tests"
+description = "Jito's Rewards Tests"
 version = { workspace = true }
 authors = { workspace = true }
 repository = { workspace = true }

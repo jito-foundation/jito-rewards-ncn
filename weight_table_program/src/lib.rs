@@ -4,7 +4,7 @@ mod update_weight_table;
 
 use borsh::BorshDeserialize;
 use const_str_to_pubkey::str_to_pubkey;
-use jito_weight_table_sdk::instruction::WeightTableInstruction;
+use jito_weight_table_core::instruction::WeightTableInstruction;
 use solana_program::{
     account_info::AccountInfo, declare_id, entrypoint::ProgramResult, msg,
     program_error::ProgramError, pubkey::Pubkey,

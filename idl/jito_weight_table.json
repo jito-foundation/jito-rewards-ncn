@@ -1,0 +1,263 @@
+{
+  "version": "0.0.1",
+  "name": "jito_weight_table",
+  "instructions": [
+    {
+      "name": "InitializeWeightTable",
+      "accounts": [
+        {
+          "name": "restakingConfig",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "ncn",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "weightTable",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "weightTableAdmin",
+          "isMut": true,
+          "isSigner": true
+        },
+        {
+          "name": "restakingProgramId",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "systemProgram",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "firstSlotOfNcnEpoch",
+          "type": {
+            "option": "u64"
+          }
+        }
+      ],
+      "discriminant": {
+        "type": "u8",
+        "value": 0
+      }
+    },
+    {
+      "name": "UpdateWeightTable",
+      "accounts": [
+        {
+          "name": "ncn",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "weightTable",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "weightTableAdmin",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "restakingProgramId",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "ncnEpoch",
+          "type": "u64"
+        },
+        {
+          "name": "weightNumerator",
+          "type": "u64"
+        },
+        {
+          "name": "weightDenominator",
+          "type": "u64"
+        }
+      ],
+      "discriminant": {
+        "type": "u8",
+        "value": 1
+      }
+    },
+    {
+      "name": "FinalizeWeightTable",
+      "accounts": [
+        {
+          "name": "ncn",
+          "isMut": false,
+          "isSigner": false
+        },
+        {
+          "name": "weightTable",
+          "isMut": true,
+          "isSigner": false
+        },
+        {
+          "name": "weightTableAdmin",
+          "isMut": false,
+          "isSigner": true
+        },
+        {
+          "name": "restakingProgramId",
+          "isMut": false,
+          "isSigner": false
+        }
+      ],
+      "args": [
+        {
+          "name": "ncnEpoch",
+          "type": "u64"
+        }
+      ],
+      "discriminant": {
+        "type": "u8",
+        "value": 2
+      }
+    }
+  ],
+  "accounts": [
+    {
+      "name": "WeightTable",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "ncn",
+            "type": "publicKey"
+          },
+          {
+            "name": "ncnEpoch",
+            "type": {
+              "defined": "PodU64"
+            }
+          },
+          {
+            "name": "slotCreated",
+            "type": {
+              "defined": "PodU64"
+            }
+          },
+          {
+            "name": "slotFinalized",
+            "type": {
+              "defined": "PodU64"
+            }
+          },
+          {
+            "name": "bump",
+            "type": "u8"
+          },
+          {
+            "name": "reserved",
+            "type": {
+              "array": [
+                "u8",
+                128
+              ]
+            }
+          },
+          {
+            "name": "table",
+            "type": {
+              "array": [
+                {
+                  "defined": "WeightEntry"
+                },
+                32
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "types": [
+    {
+      "name": "Weight",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "numerator",
+            "type": {
+              "defined": "PodU64"
+            }
+          },
+          {
+            "name": "denominator",
+            "type": {
+              "defined": "PodU64"
+            }
+          }
+        ]
+      }
+    },
+    {
+      "name": "WeightEntry",
+      "type": {
+        "kind": "struct",
+        "fields": [
+          {
+            "name": "mint",
+            "type": "publicKey"
+          },
+          {
+            "name": "weight",
+            "type": {
+              "defined": "Weight"
+            }
+          }
+        ]
+      }
+    }
+  ],
+  "errors": [
+    {
+      "code": 8192,
+      "name": "NoMoreTableSlots",
+      "msg": "No more table slots available"
+    },
+    {
+      "code": 8448,
+      "name": "DenominatorIsZero",
+      "msg": "Zero in the denominator"
+    },
+    {
+      "code": 8449,
+      "name": "ArithmeticOverflow",
+      "msg": "Overflow"
+    },
+    {
+      "code": 8450,
+      "name": "ModuloOverflow",
+      "msg": "Modulo Overflow"
+    },
+    {
+      "code": 8704,
+      "name": "IncorrectWeightTableAdmin",
+      "msg": "Incorrect weight table admin"
+    },
+    {
+      "code": 8705,
+      "name": "CannotCreateFutureWeightTables",
+      "msg": "Cannnot create future weight tables"
+    }
+  ],
+  "metadata": {
+    "origin": "shank",
+    "address": "ENHcxLEWQxRyS8VbC7Pb6GKc739vVaBZ2toJvQSL68vM"
+  }
+}
