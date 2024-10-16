@@ -25,22 +25,22 @@ borsh = { workspace = true }
 bytemuck = { workspace = true }
 cfg-if = { workspace = true }
 const_str_to_pubkey = { workspace = true }
-jito-reward-core = { workspace = true }
 jito-bytemuck = { workspace = true }
 jito-jsm-core = { workspace = true }
-jito-vault-sdk = { workspace = true }
-jito-vault-core = { workspace = true }
-jito-restaking-sdk = { workspace = true }
-jito-restaking-core= { workspace = true }
+jito-restaking-core = { workspace = true }
 jito-restaking-program = { workspace = true }
+jito-restaking-sdk = { workspace = true }
+jito-reward-core = { workspace = true }
+jito-vault-core = { workspace = true }
+jito-vault-sdk = { workspace = true }
 jito-weight-table-core = { workspace = true }
 jito-weight-table-sdk = { workspace = true }
 shank = { workspace = true }
 solana-program = { workspace = true }
+solana-security-txt = { workspace = true }
 spl-associated-token-account = { workspace = true }
 spl-token = { workspace = true }
 thiserror = { workspace = true }
-solana-security-txt = { workspace = true }
 
 [dev-dependencies]
 assert_matches = { workspace = true }

@@ -3,384 +3,454 @@
 //! to add features, then rerun kinobi to update it.
 //!
 //! <https://github.com/kinobi-so/kinobi>
-//!
 
-use borsh::BorshDeserialize;
-use borsh::BorshSerialize;
+use borsh::{BorshDeserialize, BorshSerialize};
 
 /// Accounts.
 pub struct FinalizeWeightTable {
-      
-              
-          pub ncn: solana_program::pubkey::Pubkey,
-          
-              
-          pub weight_table: solana_program::pubkey::Pubkey,
-          
-              
-          pub weight_table_admin: solana_program::pubkey::Pubkey,
-          
-              
-          pub restaking_program_id: solana_program::pubkey::Pubkey,
-      }
+    pub ncn: solana_program::pubkey::Pubkey,
+
+    pub weight_table: solana_program::pubkey::Pubkey,
+
+    pub weight_table_admin: solana_program::pubkey::Pubkey,
+
+    pub restaking_program_id: solana_program::pubkey::Pubkey,
+}
 
 impl FinalizeWeightTable {
-  pub fn instruction(&self, args: FinalizeWeightTableInstructionArgs) -> solana_program::instruction::Instruction {
-    self.instruction_with_remaining_accounts(args, &[])
-  }
-  #[allow(clippy::vec_init_then_push)]
-  pub fn instruction_with_remaining_accounts(&self, args: FinalizeWeightTableInstructionArgs, remaining_accounts: &[solana_program::instruction::AccountMeta]) -> solana_program::instruction::Instruction {
-    let mut accounts = Vec::with_capacity(4 + remaining_accounts.len());
-                            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            self.ncn,
-            false
-          ));
-                                          accounts.push(solana_program::instruction::AccountMeta::new(
-            self.weight_table,
-            false
-          ));
-                                          accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            self.weight_table_admin,
-            true
-          ));
-                                          accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            self.restaking_program_id,
-            false
-          ));
-                      accounts.extend_from_slice(remaining_accounts);
-    let mut data = FinalizeWeightTableInstructionData::new().try_to_vec().unwrap();
-          let mut args = args.try_to_vec().unwrap();
-      data.append(&mut args);
-    
-    solana_program::instruction::Instruction {
-      program_id: crate::JITO_WEIGHT_TABLE_ID,
-      accounts,
-      data,
+    pub fn instruction(
+        &self,
+        args: FinalizeWeightTableInstructionArgs,
+    ) -> solana_program::instruction::Instruction {
+        self.instruction_with_remaining_accounts(args, &[])
     }
-  }
+    #[allow(clippy::vec_init_then_push)]
+    pub fn instruction_with_remaining_accounts(
+        &self,
+        args: FinalizeWeightTableInstructionArgs,
+        remaining_accounts: &[solana_program::instruction::AccountMeta],
+    ) -> solana_program::instruction::Instruction {
+        let mut accounts = Vec::with_capacity(4 + remaining_accounts.len());
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+            self.ncn, false,
+        ));
+        accounts.push(solana_program::instruction::AccountMeta::new(
+            self.weight_table,
+            false,
+        ));
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+            self.weight_table_admin,
+            true,
+        ));
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+            self.restaking_program_id,
+            false,
+        ));
+        accounts.extend_from_slice(remaining_accounts);
+        let mut data = FinalizeWeightTableInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = args.try_to_vec().unwrap();
+        data.append(&mut args);
+
+        solana_program::instruction::Instruction {
+            program_id: crate::JITO_WEIGHT_TABLE_ID,
+            accounts,
+            data,
+        }
+    }
 }
 
 #[derive(BorshDeserialize, BorshSerialize)]
 pub struct FinalizeWeightTableInstructionData {
-            discriminator: u8,
-            }
+    discriminator: u8,
+}
 
 impl FinalizeWeightTableInstructionData {
-  pub fn new() -> Self {
-    Self {
-                        discriminator: 2,
-                                }
-  }
+    pub fn new() -> Self {
+        Self { discriminator: 2 }
+    }
 }
 
 impl Default for FinalizeWeightTableInstructionData {
-  fn default() -> Self {
-    Self::new()
-  }
+    fn default() -> Self {
+        Self::new()
+    }
 }
 
 #[derive(BorshSerialize, BorshDeserialize, Clone, Debug, Eq, PartialEq)]
 #[cfg_attr(feature = "serde", derive(serde::Serialize, serde::Deserialize))]
 pub struct FinalizeWeightTableInstructionArgs {
-                  pub ncn_epoch: u64,
-      }
-
+    pub ncn_epoch: u64,
+}
 
 /// Instruction builder for `FinalizeWeightTable`.
 ///
 /// ### Accounts:
 ///
-          ///   0. `[]` ncn
-                ///   1. `[writable]` weight_table
-                ///   2. `[signer]` weight_table_admin
-          ///   3. `[]` restaking_program_id
+///   0. `[]` ncn
+///   1. `[writable]` weight_table
+///   2. `[signer]` weight_table_admin
+///   3. `[]` restaking_program_id
 #[derive(Clone, Debug, Default)]
 pub struct FinalizeWeightTableBuilder {
-            ncn: Option<solana_program::pubkey::Pubkey>,
-                weight_table: Option<solana_program::pubkey::Pubkey>,
-                weight_table_admin: Option<solana_program::pubkey::Pubkey>,
-                restaking_program_id: Option<solana_program::pubkey::Pubkey>,
-                        ncn_epoch: Option<u64>,
-        __remaining_accounts: Vec<solana_program::instruction::AccountMeta>,
+    ncn: Option<solana_program::pubkey::Pubkey>,
+    weight_table: Option<solana_program::pubkey::Pubkey>,
+    weight_table_admin: Option<solana_program::pubkey::Pubkey>,
+    restaking_program_id: Option<solana_program::pubkey::Pubkey>,
+    ncn_epoch: Option<u64>,
+    __remaining_accounts: Vec<solana_program::instruction::AccountMeta>,
 }
 
 impl FinalizeWeightTableBuilder {
-  pub fn new() -> Self {
-    Self::default()
-  }
-            #[inline(always)]
+    pub fn new() -> Self {
+        Self::default()
+    }
+    #[inline(always)]
     pub fn ncn(&mut self, ncn: solana_program::pubkey::Pubkey) -> &mut Self {
-                        self.ncn = Some(ncn);
-                    self
+        self.ncn = Some(ncn);
+        self
     }
-            #[inline(always)]
+    #[inline(always)]
     pub fn weight_table(&mut self, weight_table: solana_program::pubkey::Pubkey) -> &mut Self {
-                        self.weight_table = Some(weight_table);
-                    self
+        self.weight_table = Some(weight_table);
+        self
     }
-            #[inline(always)]
-    pub fn weight_table_admin(&mut self, weight_table_admin: solana_program::pubkey::Pubkey) -> &mut Self {
-                        self.weight_table_admin = Some(weight_table_admin);
-                    self
+    #[inline(always)]
+    pub fn weight_table_admin(
+        &mut self,
+        weight_table_admin: solana_program::pubkey::Pubkey,
+    ) -> &mut Self {
+        self.weight_table_admin = Some(weight_table_admin);
+        self
     }
-            #[inline(always)]
-    pub fn restaking_program_id(&mut self, restaking_program_id: solana_program::pubkey::Pubkey) -> &mut Self {
-                        self.restaking_program_id = Some(restaking_program_id);
-                    self
+    #[inline(always)]
+    pub fn restaking_program_id(
+        &mut self,
+        restaking_program_id: solana_program::pubkey::Pubkey,
+    ) -> &mut Self {
+        self.restaking_program_id = Some(restaking_program_id);
+        self
     }
-                    #[inline(always)]
-      pub fn ncn_epoch(&mut self, ncn_epoch: u64) -> &mut Self {
+    #[inline(always)]
+    pub fn ncn_epoch(&mut self, ncn_epoch: u64) -> &mut Self {
         self.ncn_epoch = Some(ncn_epoch);
         self
-      }
-        /// Add an additional account to the instruction.
-  #[inline(always)]
-  pub fn add_remaining_account(&mut self, account: solana_program::instruction::AccountMeta) -> &mut Self {
-    self.__remaining_accounts.push(account);
-    self
-  }
-  /// Add additional accounts to the instruction.
-  #[inline(always)]
-  pub fn add_remaining_accounts(&mut self, accounts: &[solana_program::instruction::AccountMeta]) -> &mut Self {
-    self.__remaining_accounts.extend_from_slice(accounts);
-    self
-  }
-  #[allow(clippy::clone_on_copy)]
-  pub fn instruction(&self) -> solana_program::instruction::Instruction {
-    let accounts = FinalizeWeightTable {
-                              ncn: self.ncn.expect("ncn is not set"),
-                                        weight_table: self.weight_table.expect("weight_table is not set"),
-                                        weight_table_admin: self.weight_table_admin.expect("weight_table_admin is not set"),
-                                        restaking_program_id: self.restaking_program_id.expect("restaking_program_id is not set"),
-                      };
-          let args = FinalizeWeightTableInstructionArgs {
-                                                              ncn_epoch: self.ncn_epoch.clone().expect("ncn_epoch is not set"),
-                                    };
-    
-    accounts.instruction_with_remaining_accounts(args, &self.__remaining_accounts)
-  }
+    }
+    /// Add an additional account to the instruction.
+    #[inline(always)]
+    pub fn add_remaining_account(
+        &mut self,
+        account: solana_program::instruction::AccountMeta,
+    ) -> &mut Self {
+        self.__remaining_accounts.push(account);
+        self
+    }
+    /// Add additional accounts to the instruction.
+    #[inline(always)]
+    pub fn add_remaining_accounts(
+        &mut self,
+        accounts: &[solana_program::instruction::AccountMeta],
+    ) -> &mut Self {
+        self.__remaining_accounts.extend_from_slice(accounts);
+        self
+    }
+    #[allow(clippy::clone_on_copy)]
+    pub fn instruction(&self) -> solana_program::instruction::Instruction {
+        let accounts = FinalizeWeightTable {
+            ncn: self.ncn.expect("ncn is not set"),
+            weight_table: self.weight_table.expect("weight_table is not set"),
+            weight_table_admin: self
+                .weight_table_admin
+                .expect("weight_table_admin is not set"),
+            restaking_program_id: self
+                .restaking_program_id
+                .expect("restaking_program_id is not set"),
+        };
+        let args = FinalizeWeightTableInstructionArgs {
+            ncn_epoch: self.ncn_epoch.clone().expect("ncn_epoch is not set"),
+        };
+
+        accounts.instruction_with_remaining_accounts(args, &self.__remaining_accounts)
+    }
 }
 
-  /// `finalize_weight_table` CPI accounts.
-  pub struct FinalizeWeightTableCpiAccounts<'a, 'b> {
-          
-                    
-              pub ncn: &'b solana_program::account_info::AccountInfo<'a>,
-                
-                    
-              pub weight_table: &'b solana_program::account_info::AccountInfo<'a>,
-                
-                    
-              pub weight_table_admin: &'b solana_program::account_info::AccountInfo<'a>,
-                
-                    
-              pub restaking_program_id: &'b solana_program::account_info::AccountInfo<'a>,
-            }
+/// `finalize_weight_table` CPI accounts.
+pub struct FinalizeWeightTableCpiAccounts<'a, 'b> {
+    pub ncn: &'b solana_program::account_info::AccountInfo<'a>,
+
+    pub weight_table: &'b solana_program::account_info::AccountInfo<'a>,
+
+    pub weight_table_admin: &'b solana_program::account_info::AccountInfo<'a>,
+
+    pub restaking_program_id: &'b solana_program::account_info::AccountInfo<'a>,
+}
 
 /// `finalize_weight_table` CPI instruction.
 pub struct FinalizeWeightTableCpi<'a, 'b> {
-  /// The program to invoke.
-  pub __program: &'b solana_program::account_info::AccountInfo<'a>,
-      
-              
-          pub ncn: &'b solana_program::account_info::AccountInfo<'a>,
-          
-              
-          pub weight_table: &'b solana_program::account_info::AccountInfo<'a>,
-          
-              
-          pub weight_table_admin: &'b solana_program::account_info::AccountInfo<'a>,
-          
-              
-          pub restaking_program_id: &'b solana_program::account_info::AccountInfo<'a>,
-            /// The arguments for the instruction.
+    /// The program to invoke.
+    pub __program: &'b solana_program::account_info::AccountInfo<'a>,
+
+    pub ncn: &'b solana_program::account_info::AccountInfo<'a>,
+
+    pub weight_table: &'b solana_program::account_info::AccountInfo<'a>,
+
+    pub weight_table_admin: &'b solana_program::account_info::AccountInfo<'a>,
+
+    pub restaking_program_id: &'b solana_program::account_info::AccountInfo<'a>,
+    /// The arguments for the instruction.
     pub __args: FinalizeWeightTableInstructionArgs,
-  }
+}
 
 impl<'a, 'b> FinalizeWeightTableCpi<'a, 'b> {
-  pub fn new(
-    program: &'b solana_program::account_info::AccountInfo<'a>,
-          accounts: FinalizeWeightTableCpiAccounts<'a, 'b>,
-              args: FinalizeWeightTableInstructionArgs,
-      ) -> Self {
-    Self {
-      __program: program,
-              ncn: accounts.ncn,
-              weight_table: accounts.weight_table,
-              weight_table_admin: accounts.weight_table_admin,
-              restaking_program_id: accounts.restaking_program_id,
-                    __args: args,
-          }
-  }
-  #[inline(always)]
-  pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
-    self.invoke_signed_with_remaining_accounts(&[], &[])
-  }
-  #[inline(always)]
-  pub fn invoke_with_remaining_accounts(&self, remaining_accounts: &[(&'b solana_program::account_info::AccountInfo<'a>, bool, bool)]) -> solana_program::entrypoint::ProgramResult {
-    self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
-  }
-  #[inline(always)]
-  pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program::entrypoint::ProgramResult {
-    self.invoke_signed_with_remaining_accounts(signers_seeds, &[])
-  }
-  #[allow(clippy::clone_on_copy)]
-  #[allow(clippy::vec_init_then_push)]
-  pub fn invoke_signed_with_remaining_accounts(
-    &self,
-    signers_seeds: &[&[&[u8]]],
-    remaining_accounts: &[(&'b solana_program::account_info::AccountInfo<'a>, bool, bool)]
-  ) -> solana_program::entrypoint::ProgramResult {
-    let mut accounts = Vec::with_capacity(4 + remaining_accounts.len());
-                            accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            *self.ncn.key,
-            false
-          ));
-                                          accounts.push(solana_program::instruction::AccountMeta::new(
-            *self.weight_table.key,
-            false
-          ));
-                                          accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            *self.weight_table_admin.key,
-            true
-          ));
-                                          accounts.push(solana_program::instruction::AccountMeta::new_readonly(
-            *self.restaking_program_id.key,
-            false
-          ));
-                      remaining_accounts.iter().for_each(|remaining_account| {
-      accounts.push(solana_program::instruction::AccountMeta {
-          pubkey: *remaining_account.0.key,
-          is_signer: remaining_account.1,
-          is_writable: remaining_account.2,
-      })
-    });
-    let mut data = FinalizeWeightTableInstructionData::new().try_to_vec().unwrap();
-          let mut args = self.__args.try_to_vec().unwrap();
-      data.append(&mut args);
-    
-    let instruction = solana_program::instruction::Instruction {
-      program_id: crate::JITO_WEIGHT_TABLE_ID,
-      accounts,
-      data,
-    };
-    let mut account_infos = Vec::with_capacity(4 + 1 + remaining_accounts.len());
-    account_infos.push(self.__program.clone());
-                  account_infos.push(self.ncn.clone());
-                        account_infos.push(self.weight_table.clone());
-                        account_infos.push(self.weight_table_admin.clone());
-                        account_infos.push(self.restaking_program_id.clone());
-              remaining_accounts.iter().for_each(|remaining_account| account_infos.push(remaining_account.0.clone()));
-
-    if signers_seeds.is_empty() {
-      solana_program::program::invoke(&instruction, &account_infos)
-    } else {
-      solana_program::program::invoke_signed(&instruction, &account_infos, signers_seeds)
+    pub fn new(
+        program: &'b solana_program::account_info::AccountInfo<'a>,
+        accounts: FinalizeWeightTableCpiAccounts<'a, 'b>,
+        args: FinalizeWeightTableInstructionArgs,
+    ) -> Self {
+        Self {
+            __program: program,
+            ncn: accounts.ncn,
+            weight_table: accounts.weight_table,
+            weight_table_admin: accounts.weight_table_admin,
+            restaking_program_id: accounts.restaking_program_id,
+            __args: args,
+        }
     }
-  }
+    #[inline(always)]
+    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed_with_remaining_accounts(&[], &[])
+    }
+    #[inline(always)]
+    pub fn invoke_with_remaining_accounts(
+        &self,
+        remaining_accounts: &[(
+            &'b solana_program::account_info::AccountInfo<'a>,
+            bool,
+            bool,
+        )],
+    ) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed_with_remaining_accounts(&[], remaining_accounts)
+    }
+    #[inline(always)]
+    pub fn invoke_signed(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+    ) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed_with_remaining_accounts(signers_seeds, &[])
+    }
+    #[allow(clippy::clone_on_copy)]
+    #[allow(clippy::vec_init_then_push)]
+    pub fn invoke_signed_with_remaining_accounts(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+        remaining_accounts: &[(
+            &'b solana_program::account_info::AccountInfo<'a>,
+            bool,
+            bool,
+        )],
+    ) -> solana_program::entrypoint::ProgramResult {
+        let mut accounts = Vec::with_capacity(4 + remaining_accounts.len());
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+            *self.ncn.key,
+            false,
+        ));
+        accounts.push(solana_program::instruction::AccountMeta::new(
+            *self.weight_table.key,
+            false,
+        ));
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+            *self.weight_table_admin.key,
+            true,
+        ));
+        accounts.push(solana_program::instruction::AccountMeta::new_readonly(
+            *self.restaking_program_id.key,
+            false,
+        ));
+        remaining_accounts.iter().for_each(|remaining_account| {
+            accounts.push(solana_program::instruction::AccountMeta {
+                pubkey: *remaining_account.0.key,
+                is_signer: remaining_account.1,
+                is_writable: remaining_account.2,
+            })
+        });
+        let mut data = FinalizeWeightTableInstructionData::new()
+            .try_to_vec()
+            .unwrap();
+        let mut args = self.__args.try_to_vec().unwrap();
+        data.append(&mut args);
+
+        let instruction = solana_program::instruction::Instruction {
+            program_id: crate::JITO_WEIGHT_TABLE_ID,
+            accounts,
+            data,
+        };
+        let mut account_infos = Vec::with_capacity(4 + 1 + remaining_accounts.len());
+        account_infos.push(self.__program.clone());
+        account_infos.push(self.ncn.clone());
+        account_infos.push(self.weight_table.clone());
+        account_infos.push(self.weight_table_admin.clone());
+        account_infos.push(self.restaking_program_id.clone());
+        remaining_accounts
+            .iter()
+            .for_each(|remaining_account| account_infos.push(remaining_account.0.clone()));
+
+        if signers_seeds.is_empty() {
+            solana_program::program::invoke(&instruction, &account_infos)
+        } else {
+            solana_program::program::invoke_signed(&instruction, &account_infos, signers_seeds)
+        }
+    }
 }
 
 /// Instruction builder for `FinalizeWeightTable` via CPI.
 ///
 /// ### Accounts:
 ///
-          ///   0. `[]` ncn
-                ///   1. `[writable]` weight_table
-                ///   2. `[signer]` weight_table_admin
-          ///   3. `[]` restaking_program_id
+///   0. `[]` ncn
+///   1. `[writable]` weight_table
+///   2. `[signer]` weight_table_admin
+///   3. `[]` restaking_program_id
 #[derive(Clone, Debug)]
 pub struct FinalizeWeightTableCpiBuilder<'a, 'b> {
-  instruction: Box<FinalizeWeightTableCpiBuilderInstruction<'a, 'b>>,
+    instruction: Box<FinalizeWeightTableCpiBuilderInstruction<'a, 'b>>,
 }
 
 impl<'a, 'b> FinalizeWeightTableCpiBuilder<'a, 'b> {
-  pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
-    let instruction = Box::new(FinalizeWeightTableCpiBuilderInstruction {
-      __program: program,
-              ncn: None,
-              weight_table: None,
-              weight_table_admin: None,
-              restaking_program_id: None,
-                                            ncn_epoch: None,
-                    __remaining_accounts: Vec::new(),
-    });
-    Self { instruction }
-  }
-      #[inline(always)]
+    pub fn new(program: &'b solana_program::account_info::AccountInfo<'a>) -> Self {
+        let instruction = Box::new(FinalizeWeightTableCpiBuilderInstruction {
+            __program: program,
+            ncn: None,
+            weight_table: None,
+            weight_table_admin: None,
+            restaking_program_id: None,
+            ncn_epoch: None,
+            __remaining_accounts: Vec::new(),
+        });
+        Self { instruction }
+    }
+    #[inline(always)]
     pub fn ncn(&mut self, ncn: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
-                        self.instruction.ncn = Some(ncn);
-                    self
+        self.instruction.ncn = Some(ncn);
+        self
     }
-      #[inline(always)]
-    pub fn weight_table(&mut self, weight_table: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
-                        self.instruction.weight_table = Some(weight_table);
-                    self
+    #[inline(always)]
+    pub fn weight_table(
+        &mut self,
+        weight_table: &'b solana_program::account_info::AccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.weight_table = Some(weight_table);
+        self
     }
-      #[inline(always)]
-    pub fn weight_table_admin(&mut self, weight_table_admin: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
-                        self.instruction.weight_table_admin = Some(weight_table_admin);
-                    self
+    #[inline(always)]
+    pub fn weight_table_admin(
+        &mut self,
+        weight_table_admin: &'b solana_program::account_info::AccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.weight_table_admin = Some(weight_table_admin);
+        self
     }
-      #[inline(always)]
-    pub fn restaking_program_id(&mut self, restaking_program_id: &'b solana_program::account_info::AccountInfo<'a>) -> &mut Self {
-                        self.instruction.restaking_program_id = Some(restaking_program_id);
-                    self
+    #[inline(always)]
+    pub fn restaking_program_id(
+        &mut self,
+        restaking_program_id: &'b solana_program::account_info::AccountInfo<'a>,
+    ) -> &mut Self {
+        self.instruction.restaking_program_id = Some(restaking_program_id);
+        self
     }
-                    #[inline(always)]
-      pub fn ncn_epoch(&mut self, ncn_epoch: u64) -> &mut Self {
+    #[inline(always)]
+    pub fn ncn_epoch(&mut self, ncn_epoch: u64) -> &mut Self {
         self.instruction.ncn_epoch = Some(ncn_epoch);
         self
-      }
-        /// Add an additional account to the instruction.
-  #[inline(always)]
-  pub fn add_remaining_account(&mut self, account: &'b solana_program::account_info::AccountInfo<'a>, is_writable: bool, is_signer: bool) -> &mut Self {
-    self.instruction.__remaining_accounts.push((account, is_writable, is_signer));
-    self
-  }
-  /// Add additional accounts to the instruction.
-  ///
-  /// Each account is represented by a tuple of the `AccountInfo`, a `bool` indicating whether the account is writable or not,
-  /// and a `bool` indicating whether the account is a signer or not.
-  #[inline(always)]
-  pub fn add_remaining_accounts(&mut self, accounts: &[(&'b solana_program::account_info::AccountInfo<'a>, bool, bool)]) -> &mut Self {
-    self.instruction.__remaining_accounts.extend_from_slice(accounts);
-    self
-  }
-  #[inline(always)]
-  pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
-    self.invoke_signed(&[])
-  }
-  #[allow(clippy::clone_on_copy)]
-  #[allow(clippy::vec_init_then_push)]
-  pub fn invoke_signed(&self, signers_seeds: &[&[&[u8]]]) -> solana_program::entrypoint::ProgramResult {
-          let args = FinalizeWeightTableInstructionArgs {
-                                                              ncn_epoch: self.instruction.ncn_epoch.clone().expect("ncn_epoch is not set"),
-                                    };
+    }
+    /// Add an additional account to the instruction.
+    #[inline(always)]
+    pub fn add_remaining_account(
+        &mut self,
+        account: &'b solana_program::account_info::AccountInfo<'a>,
+        is_writable: bool,
+        is_signer: bool,
+    ) -> &mut Self {
+        self.instruction
+            .__remaining_accounts
+            .push((account, is_writable, is_signer));
+        self
+    }
+    /// Add additional accounts to the instruction.
+    ///
+    /// Each account is represented by a tuple of the `AccountInfo`, a `bool` indicating whether the account is writable or not,
+    /// and a `bool` indicating whether the account is a signer or not.
+    #[inline(always)]
+    pub fn add_remaining_accounts(
+        &mut self,
+        accounts: &[(
+            &'b solana_program::account_info::AccountInfo<'a>,
+            bool,
+            bool,
+        )],
+    ) -> &mut Self {
+        self.instruction
+            .__remaining_accounts
+            .extend_from_slice(accounts);
+        self
+    }
+    #[inline(always)]
+    pub fn invoke(&self) -> solana_program::entrypoint::ProgramResult {
+        self.invoke_signed(&[])
+    }
+    #[allow(clippy::clone_on_copy)]
+    #[allow(clippy::vec_init_then_push)]
+    pub fn invoke_signed(
+        &self,
+        signers_seeds: &[&[&[u8]]],
+    ) -> solana_program::entrypoint::ProgramResult {
+        let args = FinalizeWeightTableInstructionArgs {
+            ncn_epoch: self
+                .instruction
+                .ncn_epoch
+                .clone()
+                .expect("ncn_epoch is not set"),
+        };
         let instruction = FinalizeWeightTableCpi {
-        __program: self.instruction.__program,
-                  
-          ncn: self.instruction.ncn.expect("ncn is not set"),
-                  
-          weight_table: self.instruction.weight_table.expect("weight_table is not set"),
-                  
-          weight_table_admin: self.instruction.weight_table_admin.expect("weight_table_admin is not set"),
-                  
-          restaking_program_id: self.instruction.restaking_program_id.expect("restaking_program_id is not set"),
-                          __args: args,
-            };
-    instruction.invoke_signed_with_remaining_accounts(signers_seeds, &self.instruction.__remaining_accounts)
-  }
+            __program: self.instruction.__program,
+
+            ncn: self.instruction.ncn.expect("ncn is not set"),
+
+            weight_table: self
+                .instruction
+                .weight_table
+                .expect("weight_table is not set"),
+
+            weight_table_admin: self
+                .instruction
+                .weight_table_admin
+                .expect("weight_table_admin is not set"),
+
+            restaking_program_id: self
+                .instruction
+                .restaking_program_id
+                .expect("restaking_program_id is not set"),
+            __args: args,
+        };
+        instruction.invoke_signed_with_remaining_accounts(
+            signers_seeds,
+            &self.instruction.__remaining_accounts,
+        )
+    }
 }
 
 #[derive(Clone, Debug)]
 struct FinalizeWeightTableCpiBuilderInstruction<'a, 'b> {
-  __program: &'b solana_program::account_info::AccountInfo<'a>,
-            ncn: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-                weight_table: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-                weight_table_admin: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-                restaking_program_id: Option<&'b solana_program::account_info::AccountInfo<'a>>,
-                        ncn_epoch: Option<u64>,
-        /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
-  __remaining_accounts: Vec<(&'b solana_program::account_info::AccountInfo<'a>, bool, bool)>,
+    __program: &'b solana_program::account_info::AccountInfo<'a>,
+    ncn: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    weight_table: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    weight_table_admin: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    restaking_program_id: Option<&'b solana_program::account_info::AccountInfo<'a>>,
+    ncn_epoch: Option<u64>,
+    /// Additional instruction accounts `(AccountInfo, is_writable, is_signer)`.
+    __remaining_accounts: Vec<(
+        &'b solana_program::account_info::AccountInfo<'a>,
+        bool,
+        bool,
+    )>,
 }
-

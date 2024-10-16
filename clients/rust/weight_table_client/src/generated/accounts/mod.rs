@@ -3,9 +3,7 @@
 //! to add features, then rerun kinobi to update it.
 //!
 //! <https://github.com/kinobi-so/kinobi>
-//!
 
-  pub(crate) mod r#weight_table;
+pub(crate) mod r#weight_table;
 
-  pub use self::r#weight_table::*;
-
+pub use self::r#weight_table::*;

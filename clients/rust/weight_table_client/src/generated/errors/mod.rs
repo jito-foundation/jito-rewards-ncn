@@ -3,9 +3,7 @@
 //! to add features, then rerun kinobi to update it.
 //!
 //! <https://github.com/kinobi-so/kinobi>
-//!
 
-      pub(crate) mod jito_weight_table;
-  
-      pub use self::jito_weight_table::JitoWeightTableError;
-  
+pub(crate) mod jito_weight_table;
+
+pub use self::jito_weight_table::JitoWeightTableError;

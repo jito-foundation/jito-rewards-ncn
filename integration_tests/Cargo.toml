@@ -31,3 +31,5 @@ tokio = { workspace = true }
 
 [dependencies]
 log = "0.4.21"
+jito-weight-table-client = { workspace = true }
+

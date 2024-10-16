@@ -2563,6 +2563,7 @@ dependencies = [
  "jito-vault-core",
  "jito-vault-program",
  "jito-vault-sdk",
+ "jito-weight-table-client",
  "log",
  "shank",
  "solana-program",
@@ -2641,6 +2642,22 @@ dependencies = [
  "shank",
  "solana-program",
  "spl-token",
+ "thiserror",
+]
+
+[[package]]
+name = "jito-weight-table-client"
+version = "0.0.1"
+dependencies = [
+ "anchor-lang",
+ "borsh 0.10.4",
+ "bytemuck",
+ "num-derive 0.4.2",
+ "num-traits",
+ "serde",
+ "serde_with 3.11.0",
+ "solana-program",
+ "solana-sdk",
  "thiserror",
 ]
 

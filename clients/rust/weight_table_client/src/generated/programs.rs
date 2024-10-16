@@ -3,11 +3,8 @@
 //! to add features, then rerun kinobi to update it.
 //!
 //! <https://github.com/kinobi-so/kinobi>
-//!
 
 use solana_program::{pubkey, pubkey::Pubkey};
 
-
-  /// `jito_weight_table` program ID.
-  pub const JITO_WEIGHT_TABLE_ID: Pubkey = pubkey!("ENHcxLEWQxRyS8VbC7Pb6GKc739vVaBZ2toJvQSL68vM");
-
+/// `jito_weight_table` program ID.
+pub const JITO_WEIGHT_TABLE_ID: Pubkey = pubkey!("ENHcxLEWQxRyS8VbC7Pb6GKc739vVaBZ2toJvQSL68vM");
