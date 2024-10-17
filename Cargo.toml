@@ -80,9 +80,9 @@ jito-account-traits-derive = { git = "https://github.com/jito-foundation/restaki
 jito-jsm-core = { git = "https://github.com/jito-foundation/restaking.git", version = "=0.0.2" }
 jito-restaking-client = { git = "https://github.com/jito-foundation/restaking.git", version = "=0.0.2" }
 jito-restaking-core = { git = "https://github.com/jito-foundation/restaking.git", version = "=0.0.2" }
-jito-restaking-program = { git = "https://github.com/jito-foundation/restaking.git", version = "=0.0.2" }
+jito-restaking-program = { features = ["no-entrypoint"], git = "https://github.com/jito-foundation/restaking.git", version = "=0.0.2" }
 jito-restaking-sdk = { git = "https://github.com/jito-foundation/restaking.git", version = "=0.0.2" }
 jito-vault-client = { git = "https://github.com/jito-foundation/restaking.git", version = "=0.0.2" }
 jito-vault-core = { git = "https://github.com/jito-foundation/restaking.git", version = "=0.0.2" }
-jito-vault-program = { git = "https://github.com/jito-foundation/restaking.git", version = "=0.0.2" }
+jito-vault-program = { features = ["no-entrypoint"],  git = "https://github.com/jito-foundation/restaking.git", version = "=0.0.2" }
 jito-vault-sdk = { git = "https://github.com/jito-foundation/restaking.git", version = "=0.0.2" }
